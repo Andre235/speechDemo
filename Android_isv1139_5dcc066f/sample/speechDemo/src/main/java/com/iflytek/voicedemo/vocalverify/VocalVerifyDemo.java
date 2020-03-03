@@ -31,6 +31,7 @@ import com.iflytek.cloud.InitListener;
 import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechEvent;
+import com.iflytek.cloud.SpeechUtility;
 import com.iflytek.cloud.record.PcmRecorder;
 import com.iflytek.cloud.util.VerifierUtil;
 import com.iflytek.voicedemo.IdentifyGroup.GroupManagerActivity;
@@ -106,7 +107,7 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 			mProDialog.dismiss();
 			btn_start_record.setClickable(true);
 			switch (mPwdType) {
-				case PWD_TYPE_NUM:
+				case PWD_TYPE_NUM: //数字密码类型为3，其他类型暂未开放
 					StringBuffer numberString = new StringBuffer();
 					try {
 						JSONObject object = new JSONObject(result.getResultString());
@@ -360,7 +361,7 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.isvdemo);
-
+		//SpeechUtility.createUtility(VocalVerifyDemo.this, SpeechConstant.APPID +"=5dcc066f");
 		initUi();
 
 		mIdVerifier = IdentityVerifier.createVerifier(VocalVerifyDemo.this, new InitListener() {
@@ -378,9 +379,9 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 
 	@SuppressLint("ShowToast")
 	private void initUi() {
-		mResultEditText = (EditText) findViewById(R.id.edt_result);
-		mAuthidEditText = (EditText) findViewById(R.id.set_authId);
-		btn_start_record = (Button) findViewById(R.id.isv_reocrd);
+		mResultEditText = findViewById(R.id.edt_result);
+		mAuthidEditText = findViewById(R.id.set_authId);
+		btn_start_record = findViewById(R.id.isv_reocrd);
 		btn_start_record.setOnTouchListener(VocalVerifyDemo.this);
 		findViewById(R.id.isv_getpassword).setOnClickListener(VocalVerifyDemo.this);
 		findViewById(R.id.isv_search).setOnClickListener(VocalVerifyDemo.this);
@@ -406,7 +407,7 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 		});
 
 		// 密码选择RadioGroup初始化
-		mSstTypeGroup = (RadioGroup) findViewById(R.id.vocal_radioGroup1);
+		mSstTypeGroup = findViewById(R.id.vocal_radioGroup1);
 		mSstTypeGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(RadioGroup group, int checkedId) {

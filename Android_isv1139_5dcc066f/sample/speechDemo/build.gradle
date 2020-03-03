@@ -1,14 +1,27 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 26
     buildToolsVersion '26.0.2'
+
+    /*packagingOptions {
+        exclude 'lib/armeabi/libvinit.so'
+        exclude 'lib/armeabi-v7a/libvinit.so'
+    }*/
+
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'x86', 'armeabi-v7a','x86_64', 'arm64-v8a'
+            universalApk true
+        }
+    }
 
     defaultConfig {
         applicationId "com.iflytek.voicedemo"
         minSdkVersion 9
-        targetSdkVersion 23
-
+        targetSdkVersion 26
     }
 
     buildTypes {
@@ -38,6 +51,28 @@ android {
 dependencies {
     compile files('libs/Msc.jar')
   //  compile project(':MscLibSrc')
-    compile 'com.android.support:support-v4:23.+'
+    compile 'com.android.support:support-v4:26.+'
+}
+
+buildscript {
+    repositories {
+        // or jcenter()
+        //mavenCentral()
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
+        google()
+    }
+    dependencies {
+        //classpath 'com.android.tools.build:gradle:2.2'
+        classpath 'com.android.tools.build:gradle:3.3.0'   //last version Jan 2016
+    }
+}
+
+allprojects {
+    repositories {
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
+        google()
+    }
 }
 
