@@ -1,7 +1,6 @@
 package com.iflytek.voicedemo;
 
 import com.iflytek.cloud.SpeechUtility;
-import com.iflytek.speech.setting.UrlSettings;
 
 import com.iflytek.voicedemo.faceonline.OnlineFaceDemo;
 import com.iflytek.voicedemo.vocalverify.VocalVerifyDemo;
@@ -14,7 +13,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
+
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,16 +23,23 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
+
 import static com.iflytek.speech.setting.UrlSettings.PREFER_NAME;
 
-public class MainActivity extends Activity implements OnClickListener {
+/**
+ * @author zhaojingchao@kedacom.com
+ * @date 2020/2/28 15:14
+ * @description
+ */
+@SuppressLint("Registered")
+public class VoiceMainActivity extends Activity implements OnClickListener {
 
-	private static final String TAG = MainActivity.class.getSimpleName();
+	private static final String TAG = VoiceMainActivity.class.getSimpleName();
 	private Toast mToast;
 	private final int URL_REQUEST_CODE = 0X001;
 	private TextView edit_text;
@@ -65,11 +71,11 @@ public class MainActivity extends Activity implements OnClickListener {
 		switch (tag) {
 		case 0:
 			// 语音转写
-			intent = new Intent(MainActivity.this, IatDemo.class);
+			intent = new Intent(VoiceMainActivity.this, IatDemo.class);
 			break;
 		case 1:
 			// 语法识别
-			intent = new Intent(MainActivity.this, AsrDemo.class);
+			intent = new Intent(VoiceMainActivity.this, AsrDemo.class);
 			break;
 		case 2:
 			// 语义理解
@@ -77,11 +83,11 @@ public class MainActivity extends Activity implements OnClickListener {
 			break;
 		case 3:
 			// 语音合成
-			intent = new Intent(MainActivity.this, TtsDemo.class);
+			intent = new Intent(VoiceMainActivity.this, TtsDemo.class);
 			break;
 		case 4:
 			// 语音评测
-			intent = new Intent(MainActivity.this, IseDemo.class);
+			intent = new Intent(VoiceMainActivity.this, IseDemo.class);
 			break;
 		case 5:
 			// 唤醒
@@ -89,10 +95,10 @@ public class MainActivity extends Activity implements OnClickListener {
 			break;
 		case 6:
 			// 声纹
-			intent = new Intent(MainActivity.this, VocalVerifyDemo.class);
+			intent = new Intent(VoiceMainActivity.this, VocalVerifyDemo.class);
 			break;
 		case 7:
-			intent = new Intent(MainActivity.this,OnlineFaceDemo.class);
+			intent = new Intent(VoiceMainActivity.this,OnlineFaceDemo.class);
 			break;
 		default:
 			break;
@@ -110,13 +116,13 @@ public class MainActivity extends Activity implements OnClickListener {
 	private class SimpleAdapter extends BaseAdapter {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			if (null == convertView) {
-				LayoutInflater factory = LayoutInflater.from(MainActivity.this);
+				LayoutInflater factory = LayoutInflater.from(VoiceMainActivity.this);
 				View mView = factory.inflate(R.layout.list_items, null);
 				convertView = mView;
 			}
 			
 			Button btn = (Button) convertView.findViewById(R.id.btn);
-			btn.setOnClickListener(MainActivity.this);
+			btn.setOnClickListener(VoiceMainActivity.this);
 			btn.setTag(position);
 			btn.setText(items[position]);
 			
@@ -147,7 +153,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	@Override
 	protected void onResume() {
 		// 开放统计 移动数据统计分析
-		/*FlowerCollector.onResume(MainActivity.this);
+		/*FlowerCollector.onResume(VoiceMainActivity.this);
 		FlowerCollector.onPageStart(TAG);*/
 		super.onResume();
 	}
@@ -156,7 +162,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	protected void onPause() {
 		// 开放统计 移动数据统计分析
 	/*	FlowerCollector.onPageEnd(TAG);
-		FlowerCollector.onPause(MainActivity.this);*/
+		FlowerCollector.onPause(VoiceMainActivity.this);*/
 		super.onPause();
 	}
 

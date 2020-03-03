@@ -8,23 +8,30 @@
     <application
         android:icon="@drawable/icon"
         android:name="SpeechApp"
-        android:label="讯飞语音示例" >
-        <activity
-            android:name="com.iflytek.voicedemo.MainActivity"
-            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|fontScale"
-            android:icon="@drawable/icon"
-            android:label="讯飞语音示例"
-            android:screenOrientation="portrait" >
+        android:label="讯飞语音示例"
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:replace="android:appComponentFactory"
+        android:appComponentFactory="任意字符">
+
+        <activity android:name="com.iflytek.login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.iflytek.speech.setting.TtsSettings" >
+        <activity android:name="com.iflytek.login.RegisterActivity" />
+
+        <activity
+            android:name="com.iflytek.voicedemo.VoiceMainActivity"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|fontScale"
+            android:icon="@drawable/icon"
+            android:label="讯飞语音示例"
+            android:screenOrientation="portrait" >
         </activity>
-        <activity android:name="com.iflytek.speech.setting.IatSettings" >
-        </activity>
+
+        <activity android:name="com.iflytek.speech.setting.TtsSettings" />
+        <activity android:name="com.iflytek.speech.setting.IatSettings" />
         <activity
             android:name="com.iflytek.voicedemo.IatDemo"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|fontScale"
