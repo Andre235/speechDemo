@@ -43,6 +43,9 @@ import com.iflytek.speech.util.FucUtil;
 import com.iflytek.speech.util.JsonParser;
 /*import com.iflytek.sunflower.FlowerCollector;*/
 
+/**
+ * 语音听写
+ */
 public class IatDemo extends Activity implements OnClickListener {
 	private static String TAG = IatDemo.class.getSimpleName();
 	// 语音听写对象

@@ -13,13 +13,13 @@
         android:layout_marginTop="5dp"
         android:gravity="center" >
 
-        <TextView
+<!--        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:text="讯飞语音声纹示例"
-            android:textSize="30sp" />
+            android:text=""
+            android:textSize="30sp" />-->
     </LinearLayout>
 
     <EditText
@@ -116,18 +116,11 @@
         <Button
             android:id="@+id/isv_reocrd"
             style="@style/textStyle"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="开始录音" />
 
-        <Button
-            android:id="@+id/isv_identity"
-            style="@style/textStyle"
-            android:layout_width="0.1dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="1:N验证" />
     </LinearLayout>
 
     <TextView
@@ -157,5 +150,4 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp" />
-
 </LinearLayout>

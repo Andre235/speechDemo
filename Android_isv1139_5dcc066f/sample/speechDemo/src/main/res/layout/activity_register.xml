@@ -63,6 +63,7 @@
                 android:layout_height="50dp"
                 android:gravity="center_vertical"
                 android:layout_marginLeft="10dp"
+                android:hint="请输入手机号"
                 />
         </LinearLayout>
 <!-- 第二个文本编辑框  输入密码 -->
@@ -82,7 +83,7 @@
             android:gravity="center_vertical"
             android:layout_marginLeft="10dp"
             android:inputType="textPassword"
-            android:hint="请输入密码" />
+            android:hint="请输入6-8位字母数字混合密码" />
     </LinearLayout>
 <!-- 第三个文本编辑框  再次输入密码 -->
     <LinearLayout

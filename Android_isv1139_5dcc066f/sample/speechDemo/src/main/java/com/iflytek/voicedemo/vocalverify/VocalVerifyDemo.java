@@ -10,6 +10,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -23,6 +24,7 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.Toast;
 
+import com.iflytek.MainActivity;
 import com.iflytek.cloud.ErrorCode;
 import com.iflytek.cloud.IdentityListener;
 import com.iflytek.cloud.IdentityResult;
@@ -36,6 +38,10 @@ import com.iflytek.cloud.record.PcmRecorder;
 import com.iflytek.cloud.util.VerifierUtil;
 import com.iflytek.voicedemo.IdentifyGroup.GroupManagerActivity;
 import com.iflytek.voicedemo.R;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.Socket;
 
 /**
  * 声纹密码示例
@@ -94,6 +100,14 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 	// 进度对话框
 	private ProgressDialog mProDialog;
 
+
+	private final String ip = "192.168.0.104";
+	private final int port = 5000;
+	// 连接WiFi按钮
+//	private Button connectButton;
+	private Socket socket;
+	private PrintStream printStream;
+	private ConnectThread connectThread;
 	/**
 	 * 下载密码监听器
 	 */
@@ -101,9 +115,9 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 
 		@Override
 		public void onResult(IdentityResult result, boolean islast) {
-			Log.d(TAG, result.getResultString());
+			Log.d(TAG, "下载密码监听器："+result.getResultString());
 			mAuthidEditText.setEnabled(false);//密码获取成功后，authid不可再变动
-
+			// 关闭进度条
 			mProDialog.dismiss();
 			btn_start_record.setClickable(true);
 			switch (mPwdType) {
@@ -143,7 +157,6 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 			mProDialog.dismiss();
 			mAuthidEditText.setEnabled(true);
 			// 下载密码时，恢复按住说话触摸
-			// 下载密码时，恢复按住说话触摸
 			btn_start_record.setClickable(true);
 			mResultEditText.setText("密码下载失败！" + error.getPlainDescription(true));
 		}
@@ -156,7 +169,7 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 
 		@Override
 		public void onResult(IdentityResult result, boolean islast) {
-			Log.d(TAG, result.getResultString());
+			Log.d(TAG,"声纹注册监听器："+result.getResultString());
 
 			JSONObject jsonResult = null;
 			try {
@@ -225,14 +238,16 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 
 		@Override
 		public void onResult(IdentityResult result, boolean islast) {
-			Log.d(TAG, "verify:" + result.getResultString());
+			Log.d(TAG, "声纹验证监听器:" + result.getResultString());
 
 			try {
 				JSONObject object = new JSONObject(result.getResultString());
 				String decision = object.getString("decision");
 
 				if ("accepted".equalsIgnoreCase(decision)) {
-					mResultEditText.setText("验证通过");
+					printStream.print("1");
+					printStream.flush();
+					mResultEditText.setText("验证通过，开启门锁");
 				} else {
 					mResultEditText.setText("验证失败");
 				}
@@ -361,7 +376,12 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.isvdemo);
-		//SpeechUtility.createUtility(VocalVerifyDemo.this, SpeechConstant.APPID +"=5dcc066f");
+
+		if (android.os.Build.VERSION.SDK_INT > 9) {
+			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+			StrictMode.setThreadPolicy(policy);
+		}
+
 		initUi();
 
 		mIdVerifier = IdentityVerifier.createVerifier(VocalVerifyDemo.this, new InitListener() {
@@ -375,6 +395,9 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 				}
 			}
 		});
+
+		connectThread = new ConnectThread(ip,port);
+		connectThread.start();
 	}
 
 	@SuppressLint("ShowToast")
@@ -382,14 +405,15 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 		mResultEditText = findViewById(R.id.edt_result);
 		mAuthidEditText = findViewById(R.id.set_authId);
 		btn_start_record = findViewById(R.id.isv_reocrd);
+		//connectButton = findViewById(R.id.connectButton);
 		btn_start_record.setOnTouchListener(VocalVerifyDemo.this);
 		findViewById(R.id.isv_getpassword).setOnClickListener(VocalVerifyDemo.this);
 		findViewById(R.id.isv_search).setOnClickListener(VocalVerifyDemo.this);
 		findViewById(R.id.isv_delete).setOnClickListener(VocalVerifyDemo.this);
-		findViewById(R.id.isv_identity).setOnClickListener(VocalVerifyDemo.this);
+//		findViewById(R.id.isv_identity).setOnClickListener(VocalVerifyDemo.this);
+//		connectButton.setOnClickListener(VocalVerifyDemo.this);
 
-
-		mToast = Toast.makeText(VocalVerifyDemo.this, "", Toast.LENGTH_SHORT);
+		mToast = Toast.makeText(VocalVerifyDemo.this, "vocalVerifyDemo", Toast.LENGTH_SHORT);
 		mToast.setGravity(Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 0);
 
 		mProDialog = new ProgressDialog(VocalVerifyDemo.this);
@@ -413,7 +437,7 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
 				if( null == mIdVerifier ){
 					// 创建单例失败，与 21001 错误为同样原因，参考 http://bbs.xfyun.cn/forum.php?mod=viewthread&tid=9688
-					showTip( "创建对象失败，请确认 libmsc.so 放置正确，且有调用 createUtility 进行初始化" );
+					showTip( "Line415 initUi() 创建对象失败，请确认 libmsc.so 放置正确，且有调用 createUtility 进行初始化" );
 					return;
 				}
 
@@ -427,6 +451,7 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 					case R.id.vocal_radioVerify:
 						// 设置会话类型为验证
 						mSST = SST_VERIFY;
+						// 设置每组密码长度
 						mVerifyNumPwd = VerifierUtil.generateNumberPassword(8);
 
 						StringBuffer strBuffer = new StringBuffer();
@@ -532,30 +557,77 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 		switch (v.getId()) {
 			case R.id.isv_getpassword:
 				if (null == mNumPwdSegs) {
-					// 首次注册密码为空时，调用下载密码
-					downloadPwd();
+					downloadPwd(); // 首次注册密码为空时，调用下载密码
 				} else {
 					showTip("数字密码已存在");
 				}
 				break;
-			case R.id.isv_search:
-				// 执行查询模型
+			case R.id.isv_search: // 执行查询模型
 				mModelCmd = MODEL_QUE;
 				executeModelCommand("query");
 				break;
-			case R.id.isv_delete:
-				// 执行删除模型
+			case R.id.isv_delete: // 执行删除模型
 				mModelCmd = MODEL_DEL;
 				executeModelCommand("delete");
 				break;
-			case R.id.isv_identity:
-				Intent init  = new Intent(VocalVerifyDemo.this, GroupManagerActivity.class);
-				init.putExtra("auth_id",authid);
-				init.putExtra("mfv_scenes","ivp");
-				startActivity(init);
-				break;
+//			case R.id.isv_identity:
+//				Intent init  = new Intent(VocalVerifyDemo.this, GroupManagerActivity.class);
+//				init.putExtra("auth_id",authid);
+//				init.putExtra("mfv_scenes","ivp");
+//				startActivity(init);
+//				break;
+//			case R.id.connectButton: // 打开WiFi
+//				if(socket == null || !socket.isConnected()){
+//					connectThread = new ConnectThread(ip,port);
+//					connectThread.start();
+//					connectButton.setText("关闭连接");
+//				}
+//				if(socket != null && socket.isConnected()){
+//					try {
+//						socket.close();
+//						socket = null;
+//						connectButton.setText("打开连接");
+//					} catch (IOException e) {
+//						Toast.makeText(VocalVerifyDemo.this,"连接已关闭"+e.getMessage(),Toast.LENGTH_LONG).show();
+//					}
+//				}
+//				break;
 			default:
 				break;
+		}
+	}
+
+	private class ConnectThread extends Thread{
+
+		private String ip;
+		private int port;
+		ConnectThread(String ip,int port) {
+			this.ip = ip;
+			this.port = port;
+		}
+
+		@Override
+		public void run() {
+			try {
+				socket=new Socket(ip,port);
+				printStream = new PrintStream(socket.getOutputStream());
+//				VocalVerifyDemo.this.runOnUiThread(new Runnable() {
+//					@Override
+//					public void run() {
+//						connectButton.setText("断开连接");
+//						Toast.makeText(VocalVerifyDemo.this,"WIFI连接成功",Toast.LENGTH_LONG).show();
+//					}
+//				});
+			}catch (final IOException exception){
+//				VocalVerifyDemo.this.runOnUiThread(new Runnable() {
+//					@Override
+//					public void run() {
+//						connectButton.setText("打开连接");
+//						Log.e("connect_error",exception.getMessage());
+//						Toast.makeText(VocalVerifyDemo.this,"WIFI连接失败"+exception.getMessage(),Toast.LENGTH_SHORT).show();
+//					}
+//				});
+			}
 		}
 	}
 
@@ -624,7 +696,7 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 		// 设置下载密码参数
 		// 清空参数
 		mIdVerifier.setParameter(SpeechConstant.PARAMS, null);
-		// 设置会话场景
+		// 设置会话场景 ivp场景表示声纹识别场景
 		mIdVerifier.setParameter(SpeechConstant.MFV_SCENES, "ivp");
 
 		// 子业务执行参数，若无可以传空字符传
@@ -683,7 +755,7 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 	private boolean checkInstance(){
 		if( null == mIdVerifier ){
 			// 创建单例失败，与 21001 错误为同样原因，参考 http://bbs.xfyun.cn/forum.php?mod=viewthread&tid=9688
-			this.showTip( "创建对象失败，请确认 libmsc.so 放置正确，\n 且有调用 createUtility 进行初始化" );
+			this.showTip( "686行 checkInstance()创建对象失败，请确认 libmsc.so 放置正确，\n 且有调用 createUtility 进行初始化" );
 			return false;
 		}else{
 			return true;
@@ -691,7 +763,6 @@ public class VocalVerifyDemo extends Activity implements OnClickListener,View.On
 	}
 
 	private String getAuthid(){
-		String id = mAuthidEditText.getText()==null?null:mAuthidEditText.getText().toString();
-		return id;
+		return mAuthidEditText.getText()==null?null:mAuthidEditText.getText().toString();
 	}
 }

@@ -26,6 +26,7 @@
         android:id="@+id/rl_loginactivity_top"
         android:layout_width="match_parent"
         android:layout_height="70dp"
+
         android:background="@color/color_minefragment_top" >
         <ImageView
             android:id="@+id/iv_loginactivity_back"
@@ -95,7 +96,7 @@
                 android:id="@+id/et_loginactivity_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="手机号/邮箱/用户名"/>
+                android:hint="请输入手机号"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -110,7 +111,7 @@
                 android:id="@+id/et_loginactivity_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="登录密码"
+                android:hint="请输入密码"
                 android:inputType="textPassword"/>
         </LinearLayout>
     </LinearLayout>
@@ -133,53 +134,7 @@
         android:gravity="center"
         android:onClick="onClick"
         />
-    <!--
-        为了App的人性化，
-        想到有以下三种无法密码登录的异常处理情况
-        一、密码错误，重新输入
-        二、忘记密码，重新修改密码
-        三、不想注册，通过短信验证登录
-        密码输错了，重新输入，这个没啥说的
-        忘记密码应该以一个可以点击的文字出现在登录按钮的左下方
-        短信验证登录也以一个可以点击的文字出现在登录按钮的右下方
-    -->
-    <TextView
-        android:id="@+id/tv_loginactivity_forget"
-        android:text="忘记密码"
-        android:textColor="#f00"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50dp"
-        android:layout_marginVertical="50dp"
-        android:layout_below="@+id/bt_loginactivity_login"
-        android:layout_alignLeft="@+id/bt_loginactivity_login"
-        />
-    <TextView
-        android:id="@+id/tv_loginactivity_check"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="短信验证码登录"
-        android:textColor="#f00"
-        android:layout_marginRight="50dp"
-        android:layout_marginVertical="50dp"
-        android:layout_below="@+id/bt_loginactivity_login"
-        android:layout_alignRight="@+id/bt_loginactivity_login"
-        />
-    <!--
-    当然，QQ、微信、微博、GitHub...在当今如此火热
-    登录的时候完全可以免注册
-    直接使用第三方登录
-      -->
-    <TextView
-        android:id="@+id/tv_loginactivity_else"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_loginactivity_forget"
-        android:layout_centerInParent="true"
-        android:layout_marginVertical="30dp"
 
-        android:text="---------------------------第三方登录---------------------------"
-        android:textColor="#B3B3B3"
-        android:gravity="center"
-        />
+
+
 </RelativeLayout>

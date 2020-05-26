@@ -81,13 +81,11 @@ public class VocalIdentifyActivity extends Activity implements OnClickListener {
 		@Override
 		public void onResult(IdentityResult result, boolean islast) {
 			Log.d(TAG, result.getResultString());
-			
 			dismissProDialog();
 			mIsWorking = false;
-			
+			// 处理结果，跳转页面
 			handleResult(result);
 		}
-		
 		@Override
 		public void onEvent(int eventType, int arg1, int arg2, Bundle obj) {
 			if (SpeechEvent.EVENT_VOLUME == eventType) {
@@ -96,7 +94,6 @@ public class VocalIdentifyActivity extends Activity implements OnClickListener {
 				showTip("录音结束");
 			}
 		}
-		
 		@Override
 		public void onError(SpeechError error) {
 			mCanIdentify = false;
@@ -106,6 +103,12 @@ public class VocalIdentifyActivity extends Activity implements OnClickListener {
 		}
 
 	};
+
+	private void dismissProDialog() {
+		if (null != mProDialog) {
+			mProDialog.dismiss();
+		}
+	}
 	
 	/**
 	 * 按压监听器
@@ -116,7 +119,7 @@ public class VocalIdentifyActivity extends Activity implements OnClickListener {
 		public boolean onTouch(View v, MotionEvent event) {
 			if( null == mIdVerifier ){
 				// 创建单例失败，与 21001 错误为同样原因，参考 http://bbs.xfyun.cn/forum.php?mod=viewthread&tid=9688
-				showTip( "创建对象失败，请确认 libmsc.so 放置正确，且有调用 createUtility 进行初始化" );
+				showTip( "VocalIdentifyActivity 身份鉴别对象创建失败，请确认 libmsc.so 放置正确，且有调用 createUtility 进行初始化" );
 				return false;
 			}
 			
@@ -199,14 +202,48 @@ public class VocalIdentifyActivity extends Activity implements OnClickListener {
 				if (ErrorCode.SUCCESS == errorCode) {
 					showTip("引擎初始化成功");
 				} else {
-					showTip("引擎初始化失败，错误码：" + errorCode+",请点击网址https://www.xfyun.cn/document/error-code查询解决方案");
+					showTip("VocalIdentifyActivity.onCreate()引擎初始化失败，错误码：" + errorCode+",请点击网址https://www.xfyun.cn/document/error-code查询解决方案");
 				}
 			}
 		});
 		
 		initUI();
 	}
-	
+
+	private void initUI() {
+		TextView title = (TextView) findViewById(R.id.vocal_idf_txt_title);
+
+		mResultTextView = (TextView) findViewById(R.id.vocal_idf_edt_result);
+		mGroupIdTextView = (TextView) findViewById(R.id.vocal_idf_txt_groupid);
+
+		((Button) findViewById(R.id.btn_vocal_idf_press_to_talk)).setOnTouchListener(mPressTouchListener);
+
+		mProDialog = new ProgressDialog(VocalIdentifyActivity.this);
+		mProDialog.setCancelable(true);
+		mProDialog.setTitle("请稍候");
+		// cancel进度框时，取消正在进行的操作
+		mProDialog.setOnCancelListener(new OnCancelListener() {
+
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				if (null != mIdVerifier) {
+					mIdVerifier.cancel();
+				}
+			}
+		});
+
+		mToast = Toast.makeText(VocalIdentifyActivity.this, "", Toast.LENGTH_SHORT);
+		mToast.setGravity(Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 0);
+
+		mIdentifyNumPwd = VerifierUtil.generateNumberPassword(8);
+		StringBuilder strBufSearch = new StringBuilder();
+		strBufSearch.append("您的鉴别密码：" + mIdentifyNumPwd + "\n");
+		strBufSearch.append("请长按“按住说话”按钮进行鉴别！\n");
+		mResultTextView.setText(strBufSearch.toString());
+
+		mGroupIdTextView.setText(mGroupId);
+	}
+
 	private void handleResult(IdentityResult result) {
 		if (null == result) {
 			return;
@@ -233,40 +270,6 @@ public class VocalIdentifyActivity extends Activity implements OnClickListener {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-	}
-
-	private void initUI() {
-		TextView title = (TextView) findViewById(R.id.vocal_idf_txt_title);
-
-		mResultTextView = (TextView) findViewById(R.id.vocal_idf_edt_result);
-		mGroupIdTextView = (TextView) findViewById(R.id.vocal_idf_txt_groupid);
-		
-		((Button) findViewById(R.id.btn_vocal_idf_press_to_talk)).setOnTouchListener(mPressTouchListener);
-		
-		mProDialog = new ProgressDialog(VocalIdentifyActivity.this);
-		mProDialog.setCancelable(true);
-		mProDialog.setTitle("请稍候");
-		// cancel进度框时，取消正在进行的操作
-		mProDialog.setOnCancelListener(new OnCancelListener() {
-
-			@Override
-			public void onCancel(DialogInterface dialog) {
-				if (null != mIdVerifier) {
-					mIdVerifier.cancel();
-				}
-			}
-		});
-		
-		mToast = Toast.makeText(VocalIdentifyActivity.this, "", Toast.LENGTH_SHORT);
-		mToast.setGravity(Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 0);
-		
-		mIdentifyNumPwd = VerifierUtil.generateNumberPassword(8);
-		StringBuilder strBufSearch = new StringBuilder();
-		strBufSearch.append("您的鉴别密码：" + mIdentifyNumPwd + "\n");
-		strBufSearch.append("请长按“按住说话”按钮进行鉴别！\n");
-		mResultTextView.setText(strBufSearch.toString());
-		
-		mGroupIdTextView.setText(mGroupId);
 	}
 
 	private void vocalSearch() {
@@ -313,13 +316,7 @@ public class VocalIdentifyActivity extends Activity implements OnClickListener {
 		mToast.setText(str);
 		mToast.show();
 	}
-	
-	private void dismissProDialog() {
-		if (null != mProDialog) {
-			mProDialog.dismiss();
-		}
-	}
-	
+
 	private void showProDialog(String msg) {
 		if (mProDialog != null) {
 			mProDialog.setMessage(msg);

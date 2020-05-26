@@ -8,7 +8,7 @@
     <application
         android:icon="@drawable/icon"
         android:name="SpeechApp"
-        android:label="讯飞语音示例"
+        android:label="智能语音助手"
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:appComponentFactory"
         android:appComponentFactory="任意字符">
@@ -26,7 +26,7 @@
             android:name="com.iflytek.voicedemo.VoiceMainActivity"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|fontScale"
             android:icon="@drawable/icon"
-            android:label="讯飞语音示例"
+            android:label=""
             android:screenOrientation="portrait" >
         </activity>
 
@@ -110,9 +110,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+<!--    <uses-permission android:name="android.permission.READ_PHONE_STATE" />-->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
+<!--    <uses-permission android:name="android.permission.READ_CONTACTS" />-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />

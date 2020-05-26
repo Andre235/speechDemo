@@ -7,9 +7,16 @@ android {
         applicationId "com.iflytek.voicedemo"
         minSdkVersion 19
         targetSdkVersion 28
-
+        versionCode 1
+        versionName "0.1"
     }
-
+    android.applicationVariants.all {
+        variant ->
+            variant.outputs.all {
+                // 此处指定生成的apk文件名
+                outputFileName = "声纹识别.apk"
+            }
+    }
     splits {
         abi {
             enable true

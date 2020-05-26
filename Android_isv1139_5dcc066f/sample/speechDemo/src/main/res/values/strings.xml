@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
-    <string name="app_name">讯飞语音示例</string>
+    <string name="app_name">声纹识别</string>
 
     <string name="prompt_email">手机号</string>
     <string name="prompt_password">密码</string>
